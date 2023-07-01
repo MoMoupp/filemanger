@@ -21,7 +21,7 @@ typedef struct link_list
 } list;
 
 typedef struct manger
-{
+{   
     int filecounts;
     list *head;
     list *tail;

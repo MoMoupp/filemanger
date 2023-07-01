@@ -7,7 +7,7 @@ char *zoom_bmp(list *ls, int new_w, int new_h)
         return NULL;
     }
     // 申请一个保存目标图片的空间
-    char *destmap = malloc(new_w * new_h * 3); // show.c:149
+    char *destmap = malloc(new_w * new_h * 3); // 用完后要free掉
 
     // 从原图中拷贝数据到目标图中
     for (int i = 0; i < new_h; i++)
