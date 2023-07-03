@@ -8,18 +8,23 @@ void show_list(char *lcd_buf, char *list_buf)
         printf("list_buf flase\n");
         return;
     }
-    // 临时指针
-    char *p = lcd_buf;
-
+    int max = 0;
     // 绘制bmp图片
-    for (int i = 0; i < 480; i++)
+    char *pb;
+    char *p;
+    for (int a = 0; a < 20; a++)
     {
-        for (int j = 0; j < 800; j++)
+        pb = list_buf + (((a % 5) * 160) * 3 + (a / 5 * 120 * 800) * 3);
+        p = lcd_buf + (((a % 5) * 160) * 4 + (a / 5 * 120 * 800) * 4);
+        for (int i = 0; i < 120; i++)
         {
-            memcpy(p + j * 4, list_buf + j * 3, 3);
+            for (int j = 0; j < 160; j++)
+            {
+                memcpy(p + j * 4, pb + j * 3, 3);
+            }
+            p += 800 * 4;
+            pb += 800 * 3;
         }
-        p += 800 * 4;
-        list_buf += 800 * 3;
     }
 }
 
@@ -63,7 +68,7 @@ void get_ui_buf(char *uifile, char *uibuf)
     int rd_num = 0; // 记录读取次数
     while (1)
     {
-        size_t f = fread(uibuf + (rd_num * 800 * 3), 1, 800 * 3, file);
+        size_t f = fread(uibuf + (rd_num * 160 * 3), 1, 160 * 3, file);
         fseek(file, h_bit, SEEK_CUR);
         if (f == 0)
         {
@@ -86,8 +91,8 @@ char *get_coin(char *coinfile, int w, int h)
     }
     fseek(file, 54, SEEK_SET);
     char *uibuf = calloc(w * h * 3, 1);
-    int h_bit = 0;  //(4 - ((w *3) % 4)) % 4; // 计算填充字节
-    int rd_num = 0; // 记录读取次数
+    int h_bit = 0; // 计算填充字节
+    int rd_num = 0;                      // 记录读取次数
     while (1)
     {
         size_t f = fread(uibuf + (rd_num * w * 3), 1, w * 3, file);
@@ -108,21 +113,21 @@ void get_show_list_buf(manger *mg, char *list_buf, int abs)
     list *t = mg->head;
     int max = 0;
     int n = abs;
-    /*     if (n >= mg->filecounts)
-        {
-            n = mg->filecounts - 2;
-        }*/
+    if (n >= mg->filecounts)
+    {
+        n = mg->filecounts - 7;
+    }
     if (n < 0)
     {
         n = 0;
     }
-
-    char *uibuf = calloc(80 * 800 * 3, 1);
-    char *coinbuf = get_coin("2.bmp", 100, 60);
-    get_ui_buf("1.bmp", uibuf);
+    char *uibuf = calloc(120 * 160 * 3, 1);
+    char *coinbuf = get_coin("2.bmp", 80, 60);
+    char *p;
+    get_ui_buf("dir2.bmp", uibuf);
     while (t)
     {
-        if (max >= 6)
+        if (max >= 20)
         {
             break;
         }
@@ -130,83 +135,124 @@ void get_show_list_buf(manger *mg, char *list_buf, int abs)
         {
             t = t->next;
             n--;
-        }
-        char *p = list_buf + (80 * max * 800 * 3);
+        } 
+        p = list_buf + (((max % 5) * 160) * 4 + (max / 5 * 120 * 800) * 4);
+
         char *pf = p;
         char *pbmp = p;
-        bitmap *font = get_font(t->name, 365, 25, 20);
-
-        int d_pix = 3;
-        // 倒转
-        char *t_bmp = uibuf + 800 * (80 - 1) * 3;
-        // 绘制bmp图片
-        for (int i = 0; i < 80; i++)
+        bitmap *font;
+        int nlen = strlen(t->name);
+        if (nlen > 8)
         {
-            for (int j = 0; j < 800; j++)
+            if (nlen>13)
             {
-                memcpy(p + j * 3, t_bmp + j * 3, 3);
+                font = get_font(t->name, 102, 28, 10);
             }
-            p += 800 * 3;
-            t_bmp -= 800 * 3;
+            else
+            {
+                font = get_font(t->name, 102, 28, 15);
+            }        
         }
-
-        pf += (110 + 30 * 800) * 3;
+        else
+        {
+            font = get_font(t->name, 102, 28, 24);
+        }
+        
+        
+        // 倒转
+        char *t_bmp = uibuf + 160 * (120 - 1) * 3;
+        // 绘制bmp图片
+        for (int i = 0; i < 120; i++)
+        {
+            for (int j = 0; j < 160; j++)
+            {
+                memcpy(p + j * 4, t_bmp + j * 3, 3);
+            }
+            p += 800 * 4;
+            t_bmp -= 160 * 3;
+        }
+        
+        pf += (40 + 81 * 800) * 4;
         char *font_p = font->map;
         for (int i = 0; i < font->height; i++)
         {
             for (int j = 0; j < font->width; j++)
             {
-                pf[j * 3] = font_p[j * 4 + 2];
-                pf[j * 3 + 1] = font_p[j * 4 + 1];
-                pf[j * 3 + 2] = font_p[j * 4];
+                pf[j * 4] = font_p[j * 4 + 2];
+                pf[j * 4 + 1] = font_p[j * 4 + 1];
+                pf[j * 4 + 2] = font_p[j * 4];
             }
-            pf += 800 * 3;
+            pf += 800 * 4;
             font_p += font->width * font->byteperpixel;
         }
         destroyBitmap(font);
         
         if (t->T_type == 8)
         {
-            if (strcmp(t->type, ".bmp") == 0 || strcmp(t->type, ".jpg") == 0)
+            if (strcmp(t->type, ".bmp") == 0)
             {
-                // printf("litte start\n");
-                char *littpic_r = zoom_bmp(t, 96, 60);
-                // printf("zoom over\n");
+                char picfile[256];
+                sprintf(picfile, "%s/%s", t->pathname, t->name);
+                get_bmp(t, picfile);
+                printf("%s finsh\n", picfile);
+                char *littpic_r = zoom_bmp(t, 80, 60);
                 char *littpic = littpic_r;
-                pbmp += (12 + 10 * 800) * 3;
+                pbmp += (38 + 20 * 800) * 4;
 
                 for (int i = 0; i < 60; i++)
                 {
-                    for (int j = 0; j < 96; j++)
+                    for (int j = 0; j < 80; j++)
                     {
-                        memcpy(pbmp + j * 3, littpic + j * 3, 3);
+                        memcpy(pbmp + j * 4, littpic + j * 3, 3);
                     }
-                    pbmp += 800 * 3;
-                    littpic += 96 * 3;
+                    pbmp += 800 * 4;
+                    littpic += 80 * 3;
                 }
                 free(littpic_r);
             }
-            else
+            else if (strcmp(t->type, ".jpg") == 0)
             {
-                //倒转
-                char *t_coin = coinbuf + 100 * (60 - 1) * 3;
-                pbmp += (10 + 10 * 800) * 3;
+                char picfile[256];
+                sprintf(picfile, "%s/%s", t->pathname, t->name);
+                get_jpeg(t, picfile);
+                printf("%s finsh\n", picfile);
+                char *littpic_r = zoom_bmp(t, 80, 60);
+                char *littpic = littpic_r;
+                pbmp += (38 + 20 * 800) * 4;
 
                 for (int i = 0; i < 60; i++)
                 {
-                    for (int j = 0; j < 100; j++)
+                    for (int j = 0; j < 80; j++)
                     {
-                        memcpy(pbmp + j * 3, t_coin + j * 3, 3);
+                        memcpy(pbmp + j * 4, littpic + j * 3, 3);
                     }
-                    pbmp += 800 * 3;
-                    t_coin -= 100 * 3;
+                    pbmp += 800 * 4;
+                    littpic += 80 * 3;
                 }
-                
+                free(littpic_r);
+            }
+            
+            else
+            {
+                // 倒转
+                char *t_coin = coinbuf + 80 * (60 - 1) * 3;
+                pbmp += (38 + 20 * 800) * 4;
+
+                for (int i = 0; i < 60; i++)
+                {
+                    for (int j = 0; j < 80; j++)
+                    {
+                        memcpy(pbmp + j * 4, t_coin + j * 3, 3);
+                    }
+                    pbmp += 800 * 4;
+                    t_coin -= 80 * 3;
+                }
             }
         }
         t = t->next;
         max++;
     }
+    
     free(coinbuf);
     free(uibuf);
 }
@@ -351,7 +397,7 @@ void show_gif_jpeg(LcdDevice *lcd, char *filename, int x, int y)
 
     if ((infile = fopen(filename, "rb")) == NULL)
     {
-        //fprintf(stderr, "can't open %s\n", filename);
+        // fprintf(stderr, "can't open %s\n", filename);
         perror("can't open");
         exit(1);
     }

@@ -42,6 +42,8 @@ int Show_aDir(const char *PathName, manger *mg)
             new->T_type = 4;
             new->name = malloc(256);
             new->pathname = malloc(256);
+            new->type = malloc(256);
+            strcpy(new->type, "dir");
             strcpy(new->pathname, PathName);
             strcpy(new->name, Info->d_name);
             count++;
@@ -53,49 +55,57 @@ int Show_aDir(const char *PathName, manger *mg)
         if (Info->d_type == 8)
         {
             
-            //
+            //保存普通文件的基本数据
+            new->type = malloc(256);
             char *p = strrchr(Info->d_name, '.');
             if (p == NULL)
             {
-                p = "NULL";
-                //continue;
+                
+                strcpy(new->type, "NULL");
+                
             }
-            /* if (strcmp(".bmp", p) && strcmp(".jpg", p))
+            else
             {
-                continue;
-            } */
+                strcpy(new->type, p);
+                
+            }
             count++;
             new->No = count;
-            // 保存普通文件的基本数据
             new->T_type = 8;
+            
             new->name = malloc(256);
             strcpy(new->name, Info->d_name);
-            strcpy(new->type, p);
+            
             new->pathname = malloc(256);
             strcpy(new->pathname, PathName);
             
             char picfile[256];
             struct stat buf;
             sprintf(picfile, "%s/%s", PathName, Info->d_name);
-
+            
             stat(picfile, &buf);
             new->size = buf.st_size;
-
+            
+            printf("shit:%s,name:%s\n", new->type,new->name);
             if (strcmp(new->type, ".bmp") == 0)
             {
-                get_bmp(new, picfile);
+                new->RGB_data = NULL;
+                //get_bmp(new, picfile);
                 printf("%s finsh\n", picfile);
             }
             else if (strcmp(new->type, ".jpg") == 0)
             {
-                get_jpeg(new, picfile);
+                new->RGB_data = NULL;
+                //get_jpeg(new, picfile);
                 printf("%s finsh\n", picfile);
-            }
+            } 
+           
             // 插入链表
             TailInsert(mg, new);
-            
+           
         }
         mg->filecounts = count;
+        
     }
     // 关闭目录
     closedir(dirp);

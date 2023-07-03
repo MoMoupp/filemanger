@@ -6,7 +6,7 @@ void open_animation(LcdDevice *lcd);
 int main(void)
 {
     LcdDevice *lcd = create_lcd("/dev/fb0");
-    open_animation(lcd);
+    //open_animation(lcd);
     
     while (1)
     {
@@ -15,6 +15,7 @@ int main(void)
         touch(&x, &y, M_TOUH_, &abs);
         if (x > 45 && y > 95 && x < 205 && y < 190)
         {
+            show_font(lcd, "打开中...", 200, 400, 400, 80, 60);
             filemanger(lcd);
         }
         else

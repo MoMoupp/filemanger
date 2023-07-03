@@ -9,12 +9,13 @@ typedef struct link_list
     int No;
     char *name;
     char *pathname;
-    char type[6];
+    char *type;
     int w;
     int h;
     int pix;
     unsigned long size;
     unsigned int h_bit;
+    unsigned int rgb_size;
     char *RGB_data;
     struct link_list *next;
     struct link_list *prev;

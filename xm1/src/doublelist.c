@@ -17,14 +17,14 @@ void TailInsert(manger *mg, list *ls)
         return;
     }
     ls->prev = mg->tail;
-    //ls->next = mg->head;
+    // ls->next = mg->head;
     mg->tail->next = ls;
-    //mg->head->prev = ls;
+    // mg->head->prev = ls;
     mg->tail = ls;
     return;
 }
 
-void clearlist(manger* mg)
+void clearlist(manger *mg)
 {
     list *t = mg->head;
     while (t)
@@ -33,13 +33,17 @@ void clearlist(manger* mg)
         t = t->next;
         free(t1->name);
         free(t1->pathname);
-        if (strcmp(t1->type, ".bmp") == 0 || strcmp(t1->type, ".jpg") == 0 )/* */
+        if (strcmp(t1->type, ".bmp") == 0 || strcmp(t1->type, ".jpg") == 0)
         {
-            printf("rgb free\n");
-            free(t1->RGB_data);
+            if (t1->RGB_data!=NULL)
+            {
+                printf("rgb free\n");
+                free(t1->RGB_data);
+            }
         }
-        
+        free(t1->type);
+        free(t1);
     }
-    
+
     mg->head = mg->tail = NULL;
 }

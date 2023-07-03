@@ -48,10 +48,10 @@ void get_bmp(list *new, char *bmpfile)
     new->w = bmphead.biWidth;
     new->h = bmphead.biHeight;
     new->pix = bmphead.biBitCount / 8;
-    // new->size = new->w * new->h * new->pix;
+    new->rgb_size = new->w * new->h * new->pix;
 
     // 申请保存像素数据的空间
-    new->RGB_data = (unsigned char *)malloc(new->size);
+    new->RGB_data = (unsigned char *)malloc(new->rgb_size);
 
     // 计算填充的字节数
     new->h_bit = (4 - ((new->w *new->pix) % 4)) % 4;

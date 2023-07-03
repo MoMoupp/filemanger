@@ -51,7 +51,7 @@ char touch(int *ts_x, int *ts_y ,int code , int *abs_v)
             // 表示松开
             if (ts_event.type == EV_KEY && ts_event.code == BTN_TOUCH && ts_event.value == 0)
             {
-                if (f_x == *ts_x || f_y == *ts_y)
+                if (f_x == *ts_x && f_y == *ts_y)
                 {
                     return 'C';
                 }
